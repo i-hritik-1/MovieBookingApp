@@ -27,7 +27,7 @@ public class Movie {
 
     private String genere;
 
-    private String durationMins;
+    private Integer durationMins;
 
     private String releaseDate;
 

@@ -12,6 +12,6 @@ public class SeatDto {
     private Long id;
     private String seatNumber;
     private String seatType;
-    private Double basePride;
+    private Double basePrice;
 
 }
