@@ -25,7 +25,7 @@ public class Movie {
 
     private String language;
 
-    private String genere;
+    private String genre;
 
     private Integer durationMins;
 
@@ -35,6 +35,7 @@ public class Movie {
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL)
     private List<Show> shows;
+
 
 
 }

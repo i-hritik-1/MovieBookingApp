@@ -1,6 +1,6 @@
 package org.hritik.MovieBookingApp.service;
 
-import org.hritik.MovieBookingApp.dto.ShowDto;
+import org.hritik.MovieBookingApp.dto.*;
 import org.hritik.MovieBookingApp.exception.ResourceNotFoundException;
 import org.hritik.MovieBookingApp.model.*;
 import org.hritik.MovieBookingApp.repository.MovieRepo;
@@ -10,7 +10,9 @@ import org.hritik.MovieBookingApp.repository.ShowSeatRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ShowService {
@@ -44,32 +46,127 @@ public class ShowService {
 
         List<ShowSeat> availableSeats = showSeatRepo.findByShowIdAndStatus(savedShow.getId(),"AVAILABLE");
 
+        return mapToDto(savedShow,availableSeats);
 
     }
 
-    private Show maptoEntity(ShowDto showDto)
+    public ShowDto getShowById(Long id)
     {
-        Show show1=new Show();
+        Show show = showRepo.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Show Not found by id : "+id));
+        List<ShowSeat> availableSeats = showSeatRepo.findByShowIdAndStatus(show.getId(),"AVAILABLE");
 
-        show1.setId(showDto.getId());
-        show1.setStartTime(showDto.getStartTime());
-        show1.setEndTime(showDto.getEndTime());
+        return mapToDto(show,availableSeats);
+    }
 
-        Movie movie = new Movie();
-        movie.setId(showDto.getMovie().getId());
-        movie.setTitle(showDto.getMovie().getTitle());
-        movie.setDescription(showDto.getMovie().getDescription());
-        movie.setGenere(showDto.getMovie().getGenre());
-        movie.setLanguage(showDto.getMovie().getLanguage());
-        movie.setReleaseDate(showDto.getMovie().getReleaseDate());
-        movie.setPosterUrl(showDto.getMovie().getPosterUrl());
-        movie.setDurationMins(showDto.getMovie().getDurationMins());
+    public List<ShowDto> gteAllShows()
+    {
+        List<Show> shows = showRepo.findAll();
 
-        show1.setMovie(movie);
+        return shows.stream()
+                .map(show -> {
+                    List<ShowSeat> availableSeat = showSeatRepo.findByShowIdAndStatus(show.getId(),"AVAILABLE");
+                    return mapToDto(show,availableSeat);
+                })
+                .collect(Collectors.toList());
+    }
 
-        List<Booking> bookings = showDto.get
-        show1.setBookings();
+    public List<ShowDto> getShowByMovie(Long movieId)
+    {
+        List<Show> shows = showRepo.findByMovieId(movieId);
 
+        return shows.stream()
+                .map(show -> {
+                    List<ShowSeat> seats = showSeatRepo.findByShowIdAndStatus(show.getId(),"AVAILABLE");
+                            return mapToDto(show,seats);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<ShowDto> getShowByMovieAndCity(Long movieId,String city)
+    {
+        List<Show> shows = showRepo.findByMovie_idAndScreen_Theater_City(movieId,city);
+
+        return shows.stream()
+                .map(show -> {
+                    List<ShowSeat> seats = showSeatRepo.findByShowIdAndStatus(show.getId(),"AVAILABLE");
+                    return mapToDto(show,seats);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<ShowDto> getShowByDateRange(LocalDateTime startTime, LocalDateTime endTime)
+    {
+        List<Show> shows = showRepo.findByStartTimeBetween(startTime,endTime);
+
+        return shows.stream()
+                .map(show -> {
+                    List<ShowSeat> seats = showSeatRepo.findByShowIdAndStatus(show.getId(),"AVAILABLE");
+                    return mapToDto(show,seats);
+                })
+                .collect(Collectors.toList());
+    }
+
+
+
+
+
+
+    private ShowDto mapToDto(Show show, List<ShowSeat> availableSeats)
+    {
+        ShowDto showDto = new ShowDto();
+        showDto.setId(show.getId());
+        showDto.setStartTime(show.getStartTime());
+        showDto.setEndTime(show.getEndTime());
+
+        showDto.setMovie(new MovieDto(
+                show.getMovie().getId(),
+                show.getMovie().getTitle(),
+                show.getMovie().getDescription(),
+                show.getMovie().getLanguage(),
+                show.getMovie().getGenre(),
+                show.getMovie().getDurationMins(),
+                show.getMovie().getReleaseDate(),
+                show.getMovie().getPosterUrl()
+        ));
+
+        TheaterDto theaterDto = new TheaterDto(
+                show.getScreen().getTheater().getId(),
+                show.getScreen().getTheater().getName(),
+                show.getScreen().getTheater().getAddress(),
+                show.getScreen().getTheater().getCity(),
+                show.getScreen().getTheater().getTotalScreen()
+        );
+
+        showDto.setScreen(new ScreenDto(
+                show.getScreen().getId(),
+                show.getScreen().getName(),
+                show.getScreen().getTotalSeats(),
+                theaterDto
+        ));
+
+        List<ShowSeatDto> seatDtos = availableSeats.stream()
+                .map(seat ->{
+                    ShowSeatDto seatDto = new ShowSeatDto();
+                    seatDto.setId(seat.getId());
+                    seatDto.setStatus(seat.getStatus());
+                    seatDto.setPrice(seat.getPrice());
+
+                    SeatDto baseseatdto = new SeatDto();
+                    baseseatdto.setId(seat.getSeat().getId());
+                    baseseatdto.setSeatNumber(seat.getSeat().getSeatNumber());
+                    baseseatdto.setSeatType(seat.getSeat().getSeatType());
+                    baseseatdto.setBasePrice(seat.getSeat().getBasePrice());
+
+                    seatDto.setSeat(baseseatdto);
+                    return seatDto;
+
+                })
+                .collect(Collectors.toList());
+
+
+        showDto.setAvailableSeat(seatDtos);
+        return showDto;
     }
 
 

@@ -255,7 +255,7 @@ public class BookingService {
         movieDto.setDescription(booking.getShow().getMovie().getDescription());
         movieDto.setTitle(booking.getShow().getMovie().getTitle());
         movieDto.setLanguage(booking.getShow().getMovie().getLanguage());
-        movieDto.setGenre(booking.getShow().getMovie().getGenere());
+        movieDto.setGenre(booking.getShow().getMovie().getGenre());
         movieDto.setDurationMins((booking.getShow().getMovie().getDurationMins()));
         movieDto.setReleaseDate(booking.getShow().getMovie().getReleaseDate());
         movieDto.setPosterUrl(booking.getShow().getMovie().getPosterUrl());

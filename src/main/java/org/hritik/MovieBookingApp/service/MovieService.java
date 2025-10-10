@@ -111,7 +111,7 @@ public class MovieService {
         movieDto.setTitle(movieDto.getTitle());
         movieDto.setLanguage(movie.getLanguage());
         movieDto.setDescription(movie.getDescription());
-        movieDto.setGenre(movie.getGenere());
+        movieDto.setGenre(movie.getGenre());
         movieDto.setDurationMins(movie.getDurationMins());
         movieDto.setPosterUrl(movie.getPosterUrl());
         movieDto.setReleaseDate(movie.getReleaseDate());
@@ -125,7 +125,7 @@ public class MovieService {
         movie.setId(movieDto.getId());
         movie.setTitle(movieDto.getTitle());
         movie.setDescription(movieDto.getDescription());
-        movie.setGenere(movieDto.getGenre());
+        movie.setGenre(movieDto.getGenre());
         movie.setLanguage(movieDto.getLanguage());
         movie.setReleaseDate(movieDto.getReleaseDate());
         movie.setPosterUrl(movieDto.getPosterUrl());
